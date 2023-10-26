@@ -16,7 +16,7 @@ import ssbd01.entities.EtagVerification;
 import ssbd01.entities.EtagVersion;
 import ssbd01.entities.Shipment;
 import ssbd01.exceptions.ApplicationException;
-import ssbd01.moa.managers.ShipmentManagerLocal;
+import ssbd01.moa.managers.ShipmentManager;
 import ssbd01.util.converters.ShipmentConverter;
 
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.List;
 @DenyAll
 public class ShipmentController extends AbstractController {
 
-  @Inject private ShipmentManagerLocal shipmentManager;
+  @Inject private ShipmentManager shipmentManager;
 
   @Inject
   private EntityIdentitySignerVerifier entityIdentitySignerVerifier;

@@ -39,7 +39,7 @@ import ssbd01.dto.editSelfAccessLevel.EditSelfChemistDataDTO;
 import ssbd01.dto.editSelfAccessLevel.EditSelfPatientDataDTO;
 import ssbd01.dto.register.RegisterPatientDTO;
 import ssbd01.entities.*;
-import ssbd01.mok.managers.AccountManagerLocal;
+import ssbd01.mok.managers.AccountManager;
 import ssbd01.util.converters.AccessLevelConverter;
 import ssbd01.util.converters.AccountConverter;
 
@@ -51,9 +51,9 @@ import java.util.List;
 @Log
 public class AccountController extends AbstractController {
 
-  @Inject private AccountManagerLocal accountManager;
+  @Inject public AccountManager accountManager;
 
-  @Inject private EntityIdentitySignerVerifier entityIdentitySignerVerifier;
+  @Inject public EntityIdentitySignerVerifier entityIdentitySignerVerifier;
 
   @GET
   @Path("/")

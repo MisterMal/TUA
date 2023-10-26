@@ -5,14 +5,14 @@ import jakarta.ejb.Schedule;
 import jakarta.ejb.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
-import ssbd01.mok.managers.AccountManagerLocal;
+import ssbd01.mok.managers.AccountManager;
 
 @Startup
 @Singleton
 public class AccountScheduledTask {
 
   @Inject
-  AccountManagerLocal accountManager;
+  AccountManager accountManager;
 
   //    @Schedule(hour = "*/24", minute = "0", second = "0", info = "Each day")
   //    public void sendVerificationToken() {

@@ -3,6 +3,9 @@ package ssbd01.security;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.RequestScoped;
+import jakarta.enterprise.inject.Default;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
@@ -24,7 +27,7 @@ import ssbd01.exceptions.AccountApplicationException;
 import ssbd01.exceptions.ApplicationException;
 import ssbd01.exceptions.ApplicationExceptionEntityNotFound;
 import ssbd01.exceptions.AuthApplicationException;
-import ssbd01.mok.managers.AccountManagerLocal;
+import ssbd01.mok.managers.AccountManager;
 import ssbd01.util.AccessLevelFinder;
 
 import java.time.Instant;
@@ -34,12 +37,15 @@ import java.util.Date;
 @Path("/auth")
 @DenyAll
 public class AuthController extends AbstractController {
-
-  @Inject public IdentityStoreHandler identityStoreHandler;
-
-  @Inject public JwtUtils jwtUtils;
-  @Context private HttpServletRequest httpServletRequest;
-  @Inject public AccountManagerLocal accountManager;
+  @Inject
+  @RequestScoped
+  public IdentityStoreHandler identityStoreHandler;
+  @Inject
+  public JwtUtils jwtUtils;
+  @Context
+  public HttpServletRequest httpServletRequest;
+  @Inject
+  public AccountManager accountManager;
 
   @POST
   @Path("/login")

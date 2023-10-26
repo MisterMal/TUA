@@ -3,12 +3,16 @@ package ssbd01.common;
 import jakarta.annotation.Resource;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.TransactionAttribute;
+import jakarta.inject.Qualifier;
 
+import java.lang.annotation.Retention;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static jakarta.ejb.TransactionAttributeType.NOT_SUPPORTED;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 
 public abstract class AbstractManager {
 

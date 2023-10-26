@@ -1,5 +1,6 @@
 package ssbd01.moa.facades;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -7,10 +8,10 @@ import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import ssbd01.common.AbstractFacade;
 import ssbd01.entities.Category;
@@ -19,7 +20,7 @@ import ssbd01.interceptors.TrackerInterceptor;
 
 import java.util.List;
 import java.util.Optional;
-
+@ApplicationScoped
 @Stateless(name = "CategoryFacade")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
 @DenyAll
@@ -28,8 +29,8 @@ import java.util.Optional;
         TrackerInterceptor.class
 })
 public class CategoryFacade extends AbstractFacade<Category> {
-  @PersistenceContext(unitName = "ssbd01moaPU")
-  private EntityManager em;
+  @Inject
+  public EntityManager em;
 
   @Override
   protected EntityManager getEntityManager() {

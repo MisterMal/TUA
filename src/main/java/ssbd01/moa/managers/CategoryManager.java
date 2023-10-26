@@ -1,5 +1,6 @@
 package ssbd01.moa.managers;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -15,6 +16,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.java.Log;
 import ssbd01.common.AbstractManager;
+import ssbd01.common.CommonManagerLocalInterface;
 import ssbd01.entities.Account;
 import ssbd01.entities.Category;
 import ssbd01.exceptions.ApplicationException;
@@ -33,26 +35,24 @@ import java.util.Optional;
 @Log
 @Stateful
 @DenyAll
-
-public class CategoryManager extends AbstractManager implements CategoryManagerLocal, SessionSynchronization {
+@ApplicationScoped
+public class CategoryManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
     public CategoryManager() {
     }
 
     @Inject
-    private CategoryFacade categoryFacade;
+    public CategoryFacade categoryFacade;
 
     @Inject
-    private AccountFacade accountFacade;
+    public AccountFacade accountFacade;
 
     @Context
     private SecurityContext context;
 
-    @Override
     @RolesAllowed("getAllCategories")
     public List<Category> getAllCategories() {
         return categoryFacade.findAll();    }
 
-    @Override
     @RolesAllowed("createCategory")
     public Category createCategory(Category category) {
         Category existingCategory = categoryFacade.findByName(category.getName());
@@ -64,7 +64,6 @@ public class CategoryManager extends AbstractManager implements CategoryManagerL
         return category;
     }
 
-    @Override
     @PermitAll
     public Category getCategory(Long id) {
         Optional<Category> category = categoryFacade.find(id);
@@ -75,7 +74,6 @@ public class CategoryManager extends AbstractManager implements CategoryManagerL
         }
     }
 
-    @Override
     @RolesAllowed("editCategory")
     public Category editCategory(Long id, Category category, Long version) {
         Optional<Category> categoryOptional = categoryFacade.find(id);
@@ -95,7 +93,6 @@ public class CategoryManager extends AbstractManager implements CategoryManagerL
         }
     }
 
-    @Override
     @PermitAll
     public Category findByName(String name) {
         return categoryFacade.findByName(name);

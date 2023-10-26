@@ -7,6 +7,7 @@ import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import lombok.extern.java.Log;
@@ -29,7 +30,7 @@ import java.util.List;
 
 import static ssbd01.exceptions.TokenException.*;
 
-
+@ApplicationScoped
 @Stateful
 @Log
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -39,7 +40,7 @@ import static ssbd01.exceptions.TokenException.*;
 })
 @DenyAll
 public class TokenManager extends AbstractManager
-    implements TokenManagerLocal, SessionSynchronization {
+    implements SessionSynchronization {
 
   @Inject
   TokenFacade tokenFacade;
@@ -55,7 +56,6 @@ public class TokenManager extends AbstractManager
   @ConfigProperty(name = "reset-password.token.expiration.hours")
   private int RESET_PASSWORD_TOKEN_EXPIRATION_HOURS;
 
-  @Override
   @PermitAll
   public void sendVerificationToken(Account account, String code) {
     Token token = makeToken(account, code, TokenType.VERIFICATION);
@@ -93,7 +93,6 @@ public class TokenManager extends AbstractManager
             .toEpochMilli());
   }
 
-  @Override
   @PermitAll
   public void verifyAccount(String code) {
     Token token = tokenFacade.findByCode(code);
@@ -108,7 +107,6 @@ public class TokenManager extends AbstractManager
         account.getEmail(), account.getLogin(), account.getLanguage());
   }
 
-  @Override
   @RolesAllowed("updateOwnEmail")
   public void sendEmailChangeEmail(Account account, String new_email) {
     Token token = makeToken(account, encodeEmail(new_email), TokenType.VERIFICATION);
@@ -127,7 +125,6 @@ public class TokenManager extends AbstractManager
     return Base64.getDecoder().decode((code.substring(8, code.length())).getBytes()).toString();
   }
 
-  @Override
   @RolesAllowed("confirmEmailChange")
   public void confirmEmailChange(String code) {
     Token token = tokenFacade.findByCode(code);
@@ -141,14 +138,12 @@ public class TokenManager extends AbstractManager
     tokenFacade.edit(token);
   }
 
-  @Override
   @PermitAll
   public List<Token> findTokensByTokenTypeAndExpirationDateBefore(
       TokenType verification, Date halfExpirationDate) {
     return tokenFacade.findByTypeAndBeforeGivenData(verification, halfExpirationDate);
   }
 
-  @Override
   @PermitAll
   public void sendResetPasswordToken(Account account) {
     Token token = makeToken(account, null, TokenType.PASSWORD_RESET);
@@ -157,7 +152,6 @@ public class TokenManager extends AbstractManager
         account.getEmail(), account.getLogin(), account.getLanguage(), token.getCode());
   }
 
-  @Override
   @PermitAll
   public void setNewPassword(String token, String newPassword) {
     Token foundToken = tokenFacade.findByCode(token);

@@ -1,15 +1,18 @@
 package ssbd01.moa.managers;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import lombok.extern.java.Log;
 import ssbd01.common.AbstractManager;
+import ssbd01.common.CommonManagerLocalInterface;
 import ssbd01.entities.EtagVerification;
 import ssbd01.entities.EtagVersion;
 import ssbd01.entities.Medication;
@@ -30,17 +33,15 @@ import java.util.Optional;
         TrackerInterceptor.class})
 @Log
 @DenyAll
-
-public class ShipmentManager extends AbstractManager implements ShipmentManagerLocal, SessionSynchronization {
-
-  @Inject
-  private ShipmentFacade shipmentFacade;
+@ApplicationScoped
+public class ShipmentManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
 
   @Inject
-  private MedicationFacade medicationFacade;
+  public ShipmentFacade shipmentFacade;
 
+  @Inject
+  public MedicationFacade medicationFacade;
 
-  @Override
   @RolesAllowed("createShipment")
   public void createShipment(Shipment shipment, EtagVerification etagVerification) {
     shipment.getShipmentMedications().forEach(sm -> {
@@ -58,13 +59,11 @@ public class ShipmentManager extends AbstractManager implements ShipmentManagerL
     shipmentFacade.create(shipment);
   }
 
-  @Override
   @RolesAllowed("readAllShipments")
   public List<Shipment> getAllShipments() {
     return shipmentFacade.findAllAndRefresh();
   }
 
-  @Override
   @RolesAllowed("readShipment")
   public Shipment getShipment(Long id) {
     Optional<Shipment> shipmentOpt = shipmentFacade.findAndRefresh(id);

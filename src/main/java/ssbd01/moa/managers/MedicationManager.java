@@ -1,5 +1,6 @@
 package ssbd01.moa.managers;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -7,12 +8,14 @@ import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.java.Log;
 import ssbd01.common.AbstractManager;
+import ssbd01.common.CommonManagerLocalInterface;
 import ssbd01.entities.Account;
 import ssbd01.entities.Category;
 import ssbd01.entities.Medication;
@@ -32,28 +35,28 @@ import java.util.Optional;
         TrackerInterceptor.class})
 @Log
 @DenyAll
-
-public class MedicationManager extends AbstractManager implements MedicationManagerLocal, SessionSynchronization {
-
-    @Inject
-    private MedicationFacade medicationFacade;
+@ApplicationScoped
+public class MedicationManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
 
     @Inject
-    private CategoryFacade categoryFacade;
+    public MedicationFacade medicationFacade;
 
     @Inject
-    private AccountFacade accountFacade;
+    public CategoryFacade categoryFacade;
+
+    @Inject
+    public AccountFacade accountFacade;
 
     @Context
     private SecurityContext context;
 
-    @Override
+
     @PermitAll
     public Medication findByName(String name) {
         return medicationFacade.findByName(name);
     }
 
-    @Override
+
     @RolesAllowed("createMedication")
     public Medication createMedication(Medication medication, String categoryName) {
         Category managedCategory = categoryFacade.findByName(categoryName);
@@ -63,25 +66,25 @@ public class MedicationManager extends AbstractManager implements MedicationMana
         return medication;
     }
 
-    @Override
+
     @RolesAllowed("getAllMedications")
     public List<Medication> getAllMedications() {
         return medicationFacade.findAll();
     }
 
-    @Override
+
     @PermitAll
     public Medication getMedication(Long id) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+
     @DenyAll
     public Medication editMedication(Medication medication) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+
     @RolesAllowed("getMedicationDetails")
     public Medication getMedicationDetails(Long id) {
         Optional<Medication> medication = medicationFacade.findAndRefresh(id);

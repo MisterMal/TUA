@@ -6,6 +6,8 @@ import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Stateless
+@ApplicationScoped
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
   GenericFacadeExceptionsInterceptor.class,
@@ -31,8 +34,9 @@ import java.util.Optional;
 })
 @DenyAll
 public class AccountFacade extends AbstractFacade<Account> {
-  @PersistenceContext(unitName = "ssbd01mokPU")
-  private EntityManager em;
+
+  @Inject
+  public EntityManager em;
 
   @Override
   protected EntityManager getEntityManager() {

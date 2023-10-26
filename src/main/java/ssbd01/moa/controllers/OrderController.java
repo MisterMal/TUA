@@ -3,6 +3,7 @@ package ssbd01.moa.controllers;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.LocalBean;
+import jakarta.ejb.Singleton;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -14,8 +15,8 @@ import ssbd01.config.EntityIdentitySignerVerifier;
 import ssbd01.dto.order.CreateOrderDTO;
 import ssbd01.dto.order.OrderDTO;
 import ssbd01.entities.Order;
-import ssbd01.moa.managers.OrderManagerLocal;
-import ssbd01.mok.managers.AccountManagerLocal;
+import ssbd01.moa.managers.OrderManager;
+import ssbd01.mok.managers.AccountManager;
 import ssbd01.util.converters.OrderConverter;
 
 import java.util.List;
@@ -23,17 +24,18 @@ import java.util.stream.Collectors;
 
 @Path("order")
 @RequestScoped
+@Singleton
 @DenyAll
 @LocalBean
 @Log
 public class OrderController extends AbstractController {
 
     @Inject
-    private OrderManagerLocal orderManager;
+    public OrderManager orderManager;
     @Inject
-    private AccountManagerLocal accountManager;
+    public AccountManager accountManager;
     @Inject
-    private EntityIdentitySignerVerifier entityIdentitySignerVerifier;
+    public EntityIdentitySignerVerifier entityIdentitySignerVerifier;
 
     //moa 18
     @GET

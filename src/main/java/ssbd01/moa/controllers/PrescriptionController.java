@@ -7,7 +7,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import ssbd01.common.AbstractController;
 import ssbd01.dto.prescrription.PrescriptionDTO;
-import ssbd01.moa.managers.PrescriptionManagerLocal;
+import ssbd01.moa.managers.PrescriptionManager;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 @DenyAll
 public class PrescriptionController extends AbstractController {
 
-    @Inject private PrescriptionManagerLocal prescriptionManagerLocal;
+    @Inject private PrescriptionManager prescriptionManagerLocal;
 
     @GET
     @Path("/")

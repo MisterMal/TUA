@@ -15,8 +15,8 @@ import ssbd01.config.EntityIdentitySignerVerifier;
 import ssbd01.dto.medication.AddMedicationDTO;
 import ssbd01.dto.medication.MedicationDTO;
 import ssbd01.entities.Medication;
-import ssbd01.moa.managers.CategoryManagerLocal;
-import ssbd01.moa.managers.MedicationManagerLocal;
+import ssbd01.moa.managers.CategoryManager;
+import ssbd01.moa.managers.MedicationManager;
 import ssbd01.util.converters.MedicationConverter;
 
 
@@ -29,13 +29,13 @@ import java.util.List;
 public class MedicationController extends AbstractController {
 
     @Inject
-    private MedicationManagerLocal medicationManager;
+    public MedicationManager medicationManager;
 
     @Inject
-    private CategoryManagerLocal categoryManager;
+    public CategoryManager categoryManager;
 
     @Inject
-    private EntityIdentitySignerVerifier entityIdentitySignerVerifier;
+    public EntityIdentitySignerVerifier entityIdentitySignerVerifier;
 
 
     //moa 1

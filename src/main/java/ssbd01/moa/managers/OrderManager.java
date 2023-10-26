@@ -1,5 +1,6 @@
 package ssbd01.moa.managers;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
@@ -7,12 +8,14 @@ import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.java.Log;
 import ssbd01.common.AbstractManager;
+import ssbd01.common.CommonManagerLocalInterface;
 import ssbd01.entities.*;
 import ssbd01.exceptions.ApplicationExceptionEntityNotFound;
 import ssbd01.exceptions.OrderException;
@@ -34,22 +37,22 @@ import java.util.stream.Collectors;
 @Log
 @Stateful
 @DenyAll
-public class OrderManager extends AbstractManager
-        implements OrderManagerLocal, SessionSynchronization {
+@ApplicationScoped
+public class OrderManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
 
     @Inject
-    private OrderFacade orderFacade;
+    public OrderFacade orderFacade;
     @Inject
-    private MedicationFacade medicationFacade;
+    public MedicationFacade medicationFacade;
     @Inject
-    private ShipmentFacade shipmentFacade;
+    public ShipmentFacade shipmentFacade;
     @Inject
-    private AccountFacade accountFacade;
+    public AccountFacade accountFacade;
     @Context
     private SecurityContext context;
 
 
-    @Override
+
     @RolesAllowed("createOrder")
     public void createOrder(Order order) {
         Account account = getCurrentUserWithAccessLevels();
@@ -162,7 +165,7 @@ public class OrderManager extends AbstractManager
         }
     }
 
-    @Override
+
     @RolesAllowed("updateQueue")
     public void updateQueue() {
         List<Order> ordersInQueue = orderFacade.findAllOrdersInQueueSortByOrderDate();
@@ -179,19 +182,19 @@ public class OrderManager extends AbstractManager
         ordersInQueue.forEach(this::processOrderMedicationsStock);
     }
 
-    @Override
+
     @DenyAll
     public Order getOrder(Long id) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+
     @DenyAll
     public List<Order> getAllOrders() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+
     @RolesAllowed("getAllOrdersForSelf")
     public List<Order> getAllOrdersForSelf(Account account) {
         try {
@@ -202,19 +205,19 @@ public class OrderManager extends AbstractManager
         }
     }
 
-    @Override
+
     @RolesAllowed("getWaitingOrders")
     public List<Order> getWaitingOrders() {
         return orderFacade.findWaitingOrders();
     }
 
-    @Override
+
     @RolesAllowed("getOrdersToApprove")
     public List<Order> getOrdersToApprove() {
         return orderFacade.findNotYetApproved();
     }
 
-    @Override
+
     @RolesAllowed("approveOrder")
     public void approveOrder(Long id) {
         Order order = orderFacade.find(id).orElseThrow();
@@ -225,7 +228,7 @@ public class OrderManager extends AbstractManager
         orderFacade.edit(order);
     }
 
-    @Override
+
     @RolesAllowed("cancelOrder")
     public void cancelOrder(Long id) {
         Account account = getCurrentUser();
@@ -236,7 +239,7 @@ public class OrderManager extends AbstractManager
         orderFacade.cancelOrder(id, account.getId());
     }
 
-    @Override
+
     @RolesAllowed("withdraw")
     public void withdrawOrder(Long id) {
         Account account = getCurrentUser();
@@ -247,7 +250,7 @@ public class OrderManager extends AbstractManager
         orderFacade.withdrawOrder(id, account.getId());
     }
 
-    @Override
+
     @RolesAllowed("approvedByPatient")
     public void approvedByPatient(Long id) {
         Account account = getCurrentUser();
@@ -281,7 +284,7 @@ public class OrderManager extends AbstractManager
         }
     }
 
-    @Override
+
     @RolesAllowed("deleteWaitingOrdersById")
     public void deleteWaitingOrderById(Long id) {
         Optional<Order> order = orderFacade.find(id);

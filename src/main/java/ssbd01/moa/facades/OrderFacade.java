@@ -1,10 +1,13 @@
 package ssbd01.moa.facades;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static ssbd01.entities.OrderState.IN_QUEUE;
-
+@ApplicationScoped
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
@@ -32,8 +35,8 @@ import static ssbd01.entities.OrderState.IN_QUEUE;
         TrackerInterceptor.class
 })
 public class OrderFacade extends AbstractFacade<Order> {
-    @PersistenceContext(unitName = "ssbd01moaPU")
-    private EntityManager em;
+    @Inject
+    public EntityManager em;
 
     @Override
     protected EntityManager getEntityManager() {
