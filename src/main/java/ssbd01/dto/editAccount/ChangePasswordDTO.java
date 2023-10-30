@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+@EqualsAndHashCode(callSuper=false)
 @Data
 @ToString(callSuper = true)
 @NoArgsConstructor

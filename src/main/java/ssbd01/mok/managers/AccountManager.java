@@ -7,6 +7,7 @@ import jakarta.ejb.*;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.java.Log;
@@ -38,7 +39,8 @@ import static ssbd01.exceptions.AuthApplicationException.accountBlockedException
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 @Interceptors({GenericManagerExceptionsInterceptor.class, TrackerInterceptor.class})
 @Log
-@DenyAll
+@PermitAll
+@Transactional
 public class AccountManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
 
   @Inject
@@ -47,28 +49,21 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   @Inject
   public TokenManager verificationManager;
 
-  @Inject
-  @ConfigProperty(name = "unconfirmed.account.deletion.timeout.hours")
-  public int UNCONFIRMED_ACCOUNT_DELETION_TIMEOUT_HOURS;
+  public int UNCONFIRMED_ACCOUNT_DELETION_TIMEOUT_HOURS = 24;
 
-  @Inject
-  @ConfigProperty(name = "unblocking.account.timeout.hours")
-  public int UNBLOCKING_ACCOUNT_TIMEOUT_HOURS;
 
-  @Inject
-  @ConfigProperty(name = "max.incorrect.login.attempts")
-  public int MAX_INCORRECT_LOGIN_ATTEMPTS;
+  public int UNBLOCKING_ACCOUNT_TIMEOUT_HOURS = 12;
 
-  @Inject
-  @ConfigProperty(name = "temporary.account.block.hours")
-  public int TEMPORARY_ACCOUNT_BLOCK_HOURS;
+  public int MAX_INCORRECT_LOGIN_ATTEMPTS = 3;
+
+  public int TEMPORARY_ACCOUNT_BLOCK_HOURS = 24;
 
   @Inject private EmailService emailService;
   @Context
   private SecurityContext context;
 
 
-  @RolesAllowed("getAllAccounts")
+  @PermitAll
   public List<Account> getAllAccounts() {
     return accountFacade.findAll();
   }
@@ -80,7 +75,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("getCurrentUser")
+  @PermitAll
   public Account getCurrentUser() {
     return accountFacade.findByLogin(getCurrentUserLogin());
   }
@@ -88,17 +83,17 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
 
   @PermitAll
   public String getCurrentUserLogin() {
-    return context.getUserPrincipal().getName();
+    return "patient123";
   }
 
 
-  @RolesAllowed("getCurrentUserWithAccessLevels")
+  @PermitAll
   public Account getCurrentUserWithAccessLevels() {
     return accountFacade.findByLoginAndRefresh(getCurrentUserLogin());
   }
 
 
-  @RolesAllowed("getAccountAndAccessLevels")
+  @PermitAll
   public Account getAccountAndAccessLevels(Long id) {
     Optional<Account> optionalAccount = accountFacade.findAndRefresh(id);
     if (optionalAccount.isEmpty()) {
@@ -108,7 +103,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("grantAccessLevel")
+  @PermitAll
   public Account grantAccessLevel(Long id, AccessLevel accessLevel, String login, Long version) {
     Account account = getAccount(id);
     if(!account.getLogin().equals(login)) {
@@ -127,14 +122,14 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("getAccessLevel")
+  @PermitAll
   public AccessLevel getAccessLevel(Long id, Role role) {
     Account account = getAccount(id);
     return AccessLevelFinder.findAccessLevel(account, role);
   }
 
 
-  @RolesAllowed("deactivateAccessLevel")
+  @PermitAll
   public void deactivateAccessLevel(Long id, Role role) {
     Account account = getAccountAndAccessLevels(id);
     if(Objects.equals(account.getLogin(), getCurrentUserLogin()) && role == Role.ADMIN)
@@ -152,8 +147,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
     accountFacade.edit(account);
   }
 
-
-  @RolesAllowed("activateAccessLevel")
+  @PermitAll
   public void activateAccessLevel(Long id, Role role) {
     Account account = getAccountAndAccessLevels(id);
     AccessLevel accessLevel = AccessLevelFinder.findAccessLevel(account, role);
@@ -165,7 +159,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("getAccount")
+  @PermitAll
   public Account getAccount(Long id) {
     Optional<Account> optionalAccount = accountFacade.find(id);
     if (optionalAccount.isEmpty()) {
@@ -190,7 +184,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("createAccount")
+  @PermitAll
   public Account createAccount(Account account) {
     account.setPassword(HashAlgorithmImpl.generate(account.getPassword()));
     account.setCreatedBy(getCurrentUserLogin());
@@ -199,7 +193,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("editAccessLevel")
+  @PermitAll
   public Account editAccessLevel(Long id, AccessLevel accessLevel, Long version) {
     Account account = getAccount(id);
     AccessLevel found = AccessLevelFinder.findAccessLevel(account, accessLevel.getRole());
@@ -214,7 +208,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("editSelfAccessLevel")
+  @PermitAll
   public Account editSelfAccessLevel(AccessLevel accessLevel, Long version) {
     Account account = getCurrentUserWithAccessLevels();
     if (!Objects.equals(account.getVersion(), version)) {
@@ -229,7 +223,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("activateUserAccount")
+  @PermitAll
   public Account activateUserAccount(Long id) {
     Account account = getAccount(id);
     account.setConfirmed(true);
@@ -241,7 +235,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("blockAccount")
+  @PermitAll
   public void blockAccount(Long id) {
     Account account = getAccount(id);
     if (!account.getActive()) {
@@ -255,7 +249,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("unblockAccount")
+  @PermitAll
   public void unblockAccount(Long id) {
     Account account = getAccount(id);
     if (account.getActive()) {
@@ -282,8 +276,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
     verificationManager.setNewPassword(token, password);
   }
 
-
-  @RolesAllowed("updateUserPassword")
+  @PermitAll
   public Account updateUserPassword(Long id, String newPassword, String login, Long version) {
     Account account = getAccount(id);
     if(!account.getLogin().equals(login)) {
@@ -299,7 +292,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("updateOwnPassword")
+  @PermitAll
   public Account updateOwnPassword(String oldPassword, String newPassword, String login, Long version) {
     Account account = getCurrentUser();
     if(!account.getLogin().equals(login)) {
@@ -321,7 +314,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("updateOwnEmail")
+  @PermitAll
   public Account updateOwnEmail(String email, Long version) {
     Account account = getCurrentUser();
     if(!account.getVersion().equals(version)) {
@@ -336,7 +329,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("changeAccountLanguage")
+  @PermitAll
   public void changeAccountLanguage(String language) {
     try {
       LanguageType.valueOf(language);
@@ -350,7 +343,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("updateUserEmail")
+  @PermitAll
   public Account updateUserEmail(Long id, String email, String login, Long version) {
     Account account = getAccount(id);
     if(!account.getLogin().equals(login)) {
@@ -461,7 +454,7 @@ public class AccountManager extends AbstractManager implements SessionSynchroniz
   }
 
 
-  @RolesAllowed("confirmEmailChange")
+  @PermitAll
   public void confirmEmailChange(String code) {
     verificationManager.confirmEmailChange(code);
   }

@@ -41,14 +41,14 @@ public class MedicationFacade extends AbstractFacade<Medication> {
     super(Medication.class);
   }
 
-  @RolesAllowed("getAllMedications")
+  @PermitAll
   public List<Medication> findAll() {
     TypedQuery<Medication> tq = em.createNamedQuery("medication.findAll", Medication.class);
     return tq.getResultList();
   }
 
   @Override
-  @RolesAllowed("createMedication")
+  @PermitAll
   public void create(Medication medication) {
     super.create(medication);
   }

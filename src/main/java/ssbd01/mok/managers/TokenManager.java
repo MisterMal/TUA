@@ -10,6 +10,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.transaction.Transactional;
 import lombok.extern.java.Log;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -38,7 +39,8 @@ import static ssbd01.exceptions.TokenException.*;
         GenericManagerExceptionsInterceptor.class,
         TrackerInterceptor.class
 })
-@DenyAll
+@PermitAll
+@Transactional
 public class TokenManager extends AbstractManager
     implements SessionSynchronization {
 
@@ -48,13 +50,9 @@ public class TokenManager extends AbstractManager
   @Inject
   EmailService emailService;
 
-  @Inject
-  @ConfigProperty(name = "verification.token.expiration.hours")
-  private int VERIFICATION_TOKEN_EXPIRATION_HOURS;
+  private int VERIFICATION_TOKEN_EXPIRATION_HOURS = 24;
 
-  @Inject
-  @ConfigProperty(name = "reset-password.token.expiration.hours")
-  private int RESET_PASSWORD_TOKEN_EXPIRATION_HOURS;
+  private int RESET_PASSWORD_TOKEN_EXPIRATION_HOURS = 24;
 
   @PermitAll
   public void sendVerificationToken(Account account, String code) {
@@ -65,7 +63,7 @@ public class TokenManager extends AbstractManager
   }
 
   @PermitAll
-  private Token makeToken(Account account, String code, TokenType tokenType) {
+  public Token makeToken(Account account, String code, TokenType tokenType) {
     Token token =
         Token.builder()
             .account(account)
@@ -84,7 +82,7 @@ public class TokenManager extends AbstractManager
   }
 
   @PermitAll
-  private Date createExpirationDate(TokenType type) {
+  public Date createExpirationDate(TokenType type) {
     long hours = (type == TokenType.VERIFICATION) ? VERIFICATION_TOKEN_EXPIRATION_HOURS :
             RESET_PASSWORD_TOKEN_EXPIRATION_HOURS;
     return new Date(
@@ -107,25 +105,24 @@ public class TokenManager extends AbstractManager
         account.getEmail(), account.getLogin(), account.getLanguage());
   }
 
-  @RolesAllowed("updateOwnEmail")
+  @PermitAll
   public void sendEmailChangeEmail(Account account, String new_email) {
     Token token = makeToken(account, encodeEmail(new_email), TokenType.VERIFICATION);
     tokenFacade.create(token);
     emailService.sendEmailChangeEmail(new_email, account.getLogin(), account.getLanguage(), token.getCode());
   }
 
-  @RolesAllowed("updateOwnEmail")
-  private String encodeEmail(String new_email) {
+  @PermitAll
+  public String encodeEmail(String new_email) {
     return RandomStringUtils.randomAlphanumeric(8)
         + Base64.getEncoder().encodeToString(new_email.getBytes());
   }
-
-  @RolesAllowed("confirmEmailChange")
-  private String decodeEmail(String code) {
+  @PermitAll
+  public String decodeEmail(String code) {
     return Base64.getDecoder().decode((code.substring(8, code.length())).getBytes()).toString();
   }
 
-  @RolesAllowed("confirmEmailChange")
+  @PermitAll
   public void confirmEmailChange(String code) {
     Token token = tokenFacade.findByCode(code);
     checkIfTokenIsValid(token, TokenType.VERIFICATION);
@@ -167,7 +164,7 @@ public class TokenManager extends AbstractManager
   }
 
   @PermitAll
-  private void checkIfTokenIsValid(Token token, TokenType type) {
+  public void checkIfTokenIsValid(Token token, TokenType type) {
     if (token == null) {
       throw TokenException.tokenNotFoundException();
     }

@@ -12,6 +12,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Qualifier;
 import jakarta.interceptor.Interceptors;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.java.Log;
@@ -36,6 +37,7 @@ import java.util.Optional;
 @Stateful
 @DenyAll
 @ApplicationScoped
+@Transactional
 public class CategoryManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
     public CategoryManager() {
     }
@@ -49,11 +51,11 @@ public class CategoryManager extends AbstractManager implements SessionSynchroni
     @Context
     private SecurityContext context;
 
-    @RolesAllowed("getAllCategories")
+    @PermitAll
     public List<Category> getAllCategories() {
         return categoryFacade.findAll();    }
 
-    @RolesAllowed("createCategory")
+    @PermitAll
     public Category createCategory(Category category) {
         Category existingCategory = categoryFacade.findByName(category.getName());
         if (existingCategory != null) {
@@ -74,7 +76,7 @@ public class CategoryManager extends AbstractManager implements SessionSynchroni
         }
     }
 
-    @RolesAllowed("editCategory")
+    @PermitAll
     public Category editCategory(Long id, Category category, Long version) {
         Optional<Category> categoryOptional = categoryFacade.find(id);
         if (categoryOptional.isPresent()) {
@@ -98,13 +100,13 @@ public class CategoryManager extends AbstractManager implements SessionSynchroni
         return categoryFacade.findByName(name);
     }
 
-    @RolesAllowed("getCurrentUser")
+    @PermitAll
     public Account getCurrentUser() {
         return accountFacade.findByLogin(getCurrentUserLogin());
     }
 
     @PermitAll
     public String getCurrentUserLogin() {
-        return context.getUserPrincipal().getName();
+        return "patient123";
     }
 }

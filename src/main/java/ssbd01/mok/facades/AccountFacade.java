@@ -15,6 +15,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.transaction.Transactional;
 import ssbd01.common.AbstractFacade;
 import ssbd01.entities.Account;
 import ssbd01.interceptors.AccountFacadeExceptionsInterceptor;
@@ -24,6 +25,8 @@ import ssbd01.interceptors.TrackerInterceptor;
 import java.util.List;
 import java.util.Optional;
 
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
+
 @Stateless
 @ApplicationScoped
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -32,7 +35,7 @@ import java.util.Optional;
   AccountFacadeExceptionsInterceptor.class,
   TrackerInterceptor.class
 })
-@DenyAll
+@PermitAll
 public class AccountFacade extends AbstractFacade<Account> {
 
   @Inject
@@ -53,7 +56,7 @@ public class AccountFacade extends AbstractFacade<Account> {
     return super.findAll();
   }
 
-  @RolesAllowed("getAccountAndAccessLevels")
+  @PermitAll
   public Optional<Account> findAndRefresh(Long id) {
     return super.findAndRefresh(id);
   }
@@ -109,6 +112,7 @@ public class AccountFacade extends AbstractFacade<Account> {
   }
 
   @Override
+  @Transactional
   @PermitAll
   public void create(Account account) {
     super.create(account);

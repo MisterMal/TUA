@@ -2,7 +2,7 @@ package ssbd01.moa.scheduled;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Schedule;
-import jakarta.ejb.Singleton;
+import jakarta.inject.Singleton;
 import jakarta.ejb.Startup;
 import jakarta.inject.Inject;
 import ssbd01.common.AbstractController;

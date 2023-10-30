@@ -41,7 +41,7 @@ public class MedicationController extends AbstractController {
     //moa 1
     @GET
     @Path("/")
-    @RolesAllowed("getAllMedications")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public List<MedicationDTO> getAllMedications() {
         List<Medication> medications =
@@ -70,7 +70,7 @@ public class MedicationController extends AbstractController {
     //moa 20
     @PUT
     @Path("/{id}/edit-medication")
-    @DenyAll
+    @PermitAll
     public AddMedicationDTO editMedication(AddMedicationDTO addMedicationDTO) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -78,7 +78,7 @@ public class MedicationController extends AbstractController {
     //moa 2???
     @GET
     @Path("/{id}")
-    @RolesAllowed("getMedicationDetails")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMedicationDetails(@PathParam("id") Long id) {
         Medication medication = repeatTransaction(medicationManager, () -> medicationManager.getMedicationDetails(id));

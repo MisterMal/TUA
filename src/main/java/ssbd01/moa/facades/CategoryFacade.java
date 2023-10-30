@@ -23,7 +23,7 @@ import java.util.Optional;
 @ApplicationScoped
 @Stateless(name = "CategoryFacade")
 @TransactionAttribute(TransactionAttributeType.REQUIRED)
-@DenyAll
+@PermitAll
 @Interceptors({
         GenericFacadeExceptionsInterceptor.class,
         TrackerInterceptor.class

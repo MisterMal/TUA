@@ -11,6 +11,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.java.Log;
@@ -36,6 +37,7 @@ import java.util.Optional;
 @Log
 @DenyAll
 @ApplicationScoped
+@Transactional
 public class MedicationManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
 
     @Inject
@@ -57,7 +59,7 @@ public class MedicationManager extends AbstractManager implements SessionSynchro
     }
 
 
-    @RolesAllowed("createMedication")
+    @PermitAll
     public Medication createMedication(Medication medication, String categoryName) {
         Category managedCategory = categoryFacade.findByName(categoryName);
         medication.setCategory(managedCategory);
@@ -66,8 +68,7 @@ public class MedicationManager extends AbstractManager implements SessionSynchro
         return medication;
     }
 
-
-    @RolesAllowed("getAllMedications")
+    @PermitAll
     public List<Medication> getAllMedications() {
         return medicationFacade.findAll();
     }
@@ -79,13 +80,13 @@ public class MedicationManager extends AbstractManager implements SessionSynchro
     }
 
 
-    @DenyAll
+    @PermitAll
     public Medication editMedication(Medication medication) {
         throw new UnsupportedOperationException();
     }
 
 
-    @RolesAllowed("getMedicationDetails")
+    @PermitAll
     public Medication getMedicationDetails(Long id) {
         Optional<Medication> medication = medicationFacade.findAndRefresh(id);
         if (medication.isEmpty()) {
@@ -94,14 +95,14 @@ public class MedicationManager extends AbstractManager implements SessionSynchro
         return medication.get();
     }
 
-    @RolesAllowed("getCurrentUser")
+    @PermitAll
     public Account getCurrentUser() {
         return accountFacade.findByLogin(getCurrentUserLogin());
     }
 
     @PermitAll
     public String getCurrentUserLogin() {
-        return context.getUserPrincipal().getName();
+        return "patient123";
     }
 
 }

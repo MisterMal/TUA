@@ -18,17 +18,12 @@ import java.util.Locale;
 @ApplicationScoped
 public class EmailService {
 
-  @Inject
-  @ConfigProperty(name = "unconfirmed.account.deletion.timeout.hours")
-  private int UNCONFIRMED_ACCOUNT_DELETION_TIMEOUT_HOURS;
+  private int UNCONFIRMED_ACCOUNT_DELETION_TIMEOUT_HOURS = 24;
 
-  @Inject
-  @ConfigProperty(name = "email.address")
-  private String EMAIL_ADDRESS;
+  private String EMAIL_ADDRESS = "wixus@o2.pl";
 
-  @Inject
-  @ConfigProperty(name = "server.url")
-  private String BASE_URL;
+
+  private String BASE_URL = "https://team-1.proj-sum.it.p.lodz.pl";
 
   private ClientOptions options;
 
@@ -37,8 +32,8 @@ public class EmailService {
   public EmailService() {
     options =
         ClientOptions.builder()
-            .apiKey(ConfigProvider.getConfig().getValue("mailjet.key", String.class))
-            .apiSecretKey(ConfigProvider.getConfig().getValue("mailjet.secret", String.class))
+            .apiKey("e3ae3249248fece726bdbc7ba42c2d8e")
+            .apiSecretKey("d917e11da8837b0db091dfaab088663e")
             .build();
 
     client = new MailjetClient(options);

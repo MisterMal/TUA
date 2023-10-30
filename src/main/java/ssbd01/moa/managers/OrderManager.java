@@ -11,6 +11,7 @@ import jakarta.ejb.TransactionAttributeType;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.extern.java.Log;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 @Stateful
 @DenyAll
 @ApplicationScoped
+@Transactional
 public class OrderManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
 
     @Inject
@@ -52,8 +54,7 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     private SecurityContext context;
 
 
-
-    @RolesAllowed("createOrder")
+    @PermitAll
     public void createOrder(Order order) {
         Account account = getCurrentUserWithAccessLevels();
         AccessLevel patientData = AccessLevelFinder.findAccessLevel(account, Role.PATIENT);
@@ -86,8 +87,8 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
         orderFacade.create(order);
     }
 
-    @RolesAllowed("createOrder")
-    private boolean checkIsOnPrescription(Order order) {
+    @PermitAll
+    public boolean checkIsOnPrescription(Order order) {
         for (OrderMedication om : order.getOrderMedications()) {
             if (om.getMedication().getCategory().getIsOnPrescription()) {
                 return true;
@@ -96,8 +97,8 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
         return false;
     }
 
-    @RolesAllowed("createOrder")
-    private void partiallyCalculateQueue(Order order, List<Shipment> shipmentsNotProcessed) {
+    @PermitAll
+    public void partiallyCalculateQueue(Order order, List<Shipment> shipmentsNotProcessed) {
 
         // get list of all medications in current order
         List<Medication> medicationsInOrder = order.getOrderMedications().stream()
@@ -122,8 +123,8 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
         processOrderMedicationsStock(order);
     }
 
-    @RolesAllowed("createOrder")
-    private void increaseMedicationStock(List<Shipment> shipmentsNotProcessed,
+    @PermitAll
+    public void increaseMedicationStock(List<Shipment> shipmentsNotProcessed,
                                          Set<Medication> medicationsToProcess) {
         shipmentsNotProcessed.forEach(shipment -> {
             shipment.getShipmentMedications().forEach(sm -> {
@@ -135,9 +136,8 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
             });
         });
     }
-
-    @RolesAllowed({"updateQueue", "createOrder"})
-    private void processOrderMedicationsStock(Order order) {
+    @PermitAll
+    public void processOrderMedicationsStock(Order order) {
         // check if stock can be decreased
         for (OrderMedication orderMedication : order.getOrderMedications()) {
             Medication medication = orderMedication.getMedication();
@@ -166,7 +166,7 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @RolesAllowed("updateQueue")
+    @PermitAll
     public void updateQueue() {
         List<Order> ordersInQueue = orderFacade.findAllOrdersInQueueSortByOrderDate();
         List<Shipment> shipmentsNotProcessed = shipmentFacade.findAllNotAlreadyProcessed();
@@ -183,19 +183,19 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @DenyAll
+    @PermitAll
     public Order getOrder(Long id) {
         throw new UnsupportedOperationException();
     }
 
 
-    @DenyAll
+    @PermitAll
     public List<Order> getAllOrders() {
         throw new UnsupportedOperationException();
     }
 
 
-    @RolesAllowed("getAllOrdersForSelf")
+    @PermitAll
     public List<Order> getAllOrdersForSelf(Account account) {
         try {
             AccessLevel patientData = AccessLevelFinder.findAccessLevel(account, Role.PATIENT);
@@ -206,19 +206,19 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @RolesAllowed("getWaitingOrders")
+    @PermitAll
     public List<Order> getWaitingOrders() {
         return orderFacade.findWaitingOrders();
     }
 
 
-    @RolesAllowed("getOrdersToApprove")
+    @PermitAll
     public List<Order> getOrdersToApprove() {
         return orderFacade.findNotYetApproved();
     }
 
 
-    @RolesAllowed("approveOrder")
+    @PermitAll
     public void approveOrder(Long id) {
         Order order = orderFacade.find(id).orElseThrow();
         if (!order.getOrderState().equals(OrderState.WAITING_FOR_CHEMIST_APPROVAL)) {
@@ -229,7 +229,7 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @RolesAllowed("cancelOrder")
+    @PermitAll
     public void cancelOrder(Long id) {
         Account account = getCurrentUser();
         Order order = orderFacade.find(id).orElseThrow();
@@ -240,7 +240,7 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @RolesAllowed("withdraw")
+    @PermitAll
     public void withdrawOrder(Long id) {
         Account account = getCurrentUser();
         Order order = orderFacade.find(id).orElseThrow();
@@ -251,7 +251,7 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @RolesAllowed("approvedByPatient")
+    @PermitAll
     public void approvedByPatient(Long id) {
         Account account = getCurrentUser();
         Order order = orderFacade.find(id)
@@ -271,8 +271,8 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
         }
     }
 
-    @RolesAllowed("approvedByPatient")
-    private void decreaseMedicationStock(Order order) {
+    @PermitAll
+    public void decreaseMedicationStock(Order order) {
         for (OrderMedication orderMedication : order.getOrderMedications()) {
             Medication medication = orderMedication.getMedication();
             int requestedQuantity = orderMedication.getQuantity();
@@ -285,7 +285,7 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @RolesAllowed("deleteWaitingOrdersById")
+    @PermitAll
     public void deleteWaitingOrderById(Long id) {
         Optional<Order> order = orderFacade.find(id);
         if (order.get().getOrderState() != OrderState.IN_QUEUE) {
@@ -295,12 +295,12 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
     }
 
 
-    @RolesAllowed("getCurrentUser")
+    @PermitAll
     public Account getCurrentUser() {
         return accountFacade.findByLogin(getCurrentUserLogin());
     }
 
-    @RolesAllowed("getCurrentUserWithAccessLevels")
+    @PermitAll
     public Account getCurrentUserWithAccessLevels() {
 
         return accountFacade.findByLoginAndRefresh(getCurrentUserLogin());
@@ -308,6 +308,6 @@ public class OrderManager extends AbstractManager implements SessionSynchronizat
 
     @PermitAll
     public String getCurrentUserLogin() {
-        return context.getUserPrincipal().getName();
+        return "patient123";
     }
 }

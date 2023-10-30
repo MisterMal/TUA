@@ -1,6 +1,7 @@
 package ssbd01.moa.controllers;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -33,7 +34,7 @@ public class ShipmentController extends AbstractController {
 
   @GET
   @Path("/")
-  @RolesAllowed("readAllShipments")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   public List<ShipmentDTO> readAllShipments() {
     List<Shipment> shipments = repeatTransaction(shipmentManager,
@@ -43,7 +44,7 @@ public class ShipmentController extends AbstractController {
 
   @GET
   @Path("/{id}")
-  @RolesAllowed("readShipment")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   public ShipmentDTO readShipment(@PathParam("id") Long id) {
     Shipment shipment = repeatTransaction(shipmentManager,
@@ -53,7 +54,7 @@ public class ShipmentController extends AbstractController {
 
   @POST
   @Path("/")
-  @RolesAllowed("createShipment")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   public Response createShipment(@Valid CreateShipmentDTO shipmentDTO) {
     EtagVerification etagVerification = ShipmentConverter

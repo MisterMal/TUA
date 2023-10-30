@@ -41,7 +41,7 @@ public class CategoryController extends AbstractController {
     //moa 22
     @GET
     @Path("/")
-    @RolesAllowed("getAllCategories")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public List<GetCategoryDTO> getAllCategories() {
         List<Category> categories =
@@ -64,7 +64,7 @@ public class CategoryController extends AbstractController {
     //moa 21
     @POST
     @Path("/add-category")
-    @RolesAllowed("createCategory")
+    @PermitAll
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCategory(@NotNull @Valid CategoryDTO categoryDto) {
@@ -77,7 +77,7 @@ public class CategoryController extends AbstractController {
     //moa 23
     @PUT
     @Path("/{id}/edit-category")
-    @RolesAllowed("editCategory")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @ETagFilterBinding

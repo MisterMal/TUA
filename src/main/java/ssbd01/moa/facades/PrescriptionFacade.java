@@ -2,6 +2,7 @@ package ssbd01.moa.facades;
 
 import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -26,7 +27,7 @@ public class PrescriptionFacade extends AbstractFacade<Prescription> {
     super(Prescription.class);
   }
 
-  @DenyAll
+  @PermitAll
   @Override
   public List<Prescription> findAll() {
     return super.findAll();

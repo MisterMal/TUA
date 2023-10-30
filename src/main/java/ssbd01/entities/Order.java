@@ -27,7 +27,7 @@ import java.util.List;
 @NamedQuery(
         name = "Order.findAllOrdersStateInQueueSortByOrderDate",
         query =
-                "SELECT o FROM Order o WHERE o.orderState = pl.lodz.p.it.ssbd2023.ssbd01.entities.OrderState.IN_QUEUE ORDER BY o.orderDate ASC")
+                "SELECT o FROM Order o WHERE o.orderState = ssbd01.entities.OrderState.IN_QUEUE ORDER BY o.orderDate ASC")
 public class Order extends AbstractEntity implements Serializable {
 
     @Id

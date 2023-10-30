@@ -12,6 +12,7 @@ import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import ssbd01.common.AbstractFacade;
 import ssbd01.entities.Account;
 import ssbd01.interceptors.AccountFacadeExceptionsInterceptor;
@@ -20,6 +21,8 @@ import ssbd01.interceptors.TrackerInterceptor;
 
 import java.util.Optional;
 
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
+
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
@@ -27,7 +30,7 @@ import java.util.Optional;
         AccountFacadeExceptionsInterceptor.class,
         TrackerInterceptor.class
 })
-@DenyAll
+@PermitAll
 @ApplicationScoped
 public class AccountFacade extends AbstractFacade<Account> {
 

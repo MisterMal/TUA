@@ -1,16 +1,18 @@
 package ssbd01.entities;
 
+import io.quarkus.security.jpa.Password;
+import io.quarkus.security.jpa.Roles;
+import io.quarkus.security.jpa.UserDefinition;
+import io.quarkus.security.jpa.Username;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.Type;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
@@ -21,14 +23,17 @@ import java.util.Set;
 @NamedQuery(name = "account.findAll", query = "SELECT o FROM Account o")
 @NamedQuery(name = "account.findByLogin", query = "SELECT o FROM Account o WHERE o.login = ?1")
 @NamedQuery(name = "account.findByEmail", query = "SELECT o FROM Account o WHERE o.email = ?1")
+@UserDefinition
 public class Account extends AbstractEntity implements Serializable {
 
   public static final long serialVersionUID = 1L;
 
+  @ToString.Exclude
+  @Roles
   @OneToMany(
       cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE, CascadeType.REFRESH},
-      mappedBy = "account")
-  @ToString.Exclude
+      mappedBy = "account",
+      fetch = FetchType.EAGER)
   Set<AccessLevel> accessLevels = new HashSet<>();
 
   @Id
@@ -39,6 +44,7 @@ public class Account extends AbstractEntity implements Serializable {
   @Column(unique = true, nullable = false)
   @Size(max = 50, min = 5)
   @NotNull
+  @Username
   private String login;
 
   @Size(max = 50, min = 5)
@@ -50,6 +56,7 @@ public class Account extends AbstractEntity implements Serializable {
 
   @ToString.Exclude
   @Column(nullable = false)
+  @Password
   private String password;
 
   @Column(nullable = false)

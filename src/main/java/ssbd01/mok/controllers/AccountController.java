@@ -132,7 +132,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/block")
-  @RolesAllowed("blockAccount")
+  @PermitAll
   public Response blockAccount(@PathParam("id") Long id) {
     repeatTransactionVoid(accountManager, () -> accountManager.blockAccount(id));
     return Response.status(Response.Status.OK).build();
@@ -140,7 +140,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/unblock")
-  @RolesAllowed("unblockAccount")
+  @PermitAll
   public Response unblockAccount(@PathParam("id") Long id) {
     repeatTransactionVoid(accountManager, () -> accountManager.unblockAccount(id));
     return Response.status(Response.Status.OK).build();
@@ -148,7 +148,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("{id}/activate")
-  @RolesAllowed("activateAccessLevel")
+  @PermitAll
   public AccountDTO activateAccount(@PathParam("id") Long id) {
     Account account =
         repeatTransaction(accountManager, () -> accountManager.activateUserAccount(id));
@@ -157,7 +157,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/change-user-password")
-  @RolesAllowed("updateUserPassword")
+  @PermitAll
   @ETagFilterBinding
   public AccountDTO changeUserPassword(
       @HeaderParam("If-Match") @NotEmpty String etag,
@@ -172,7 +172,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/change-password")
-  @RolesAllowed("updateOwnPassword")
+  @PermitAll
   @ETagFilterBinding
   public Response changePassword(
       @HeaderParam("If-Match") @NotEmpty String etag,
@@ -187,7 +187,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/")
-  @RolesAllowed("updateOwnEmail")
+  @PermitAll
   @ETagFilterBinding
   public AccountDTO editOwnAccount(
       @HeaderParam("If-Match") @NotEmpty String etag,
@@ -201,7 +201,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/change-language")
-  @RolesAllowed("changeAccountLanguage")
+  @PermitAll
   public Response changeLanguage(@QueryParam("language") String language) {
     repeatTransactionVoid(accountManager,
             () -> accountManager.changeAccountLanguage(language));
@@ -210,7 +210,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}")
-  @RolesAllowed("updateUserEmail")
+  @PermitAll
   @ETagFilterBinding
   public AccountDTO editUserAccount(
       @HeaderParam("If-Match") @NotEmpty String etag,
@@ -245,7 +245,7 @@ public class AccountController extends AbstractController {
 
   @POST
   @Path("/add-patient")
-  @RolesAllowed("createAccount")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   public Response addPatientAccountAsAdmin(
       @NotNull @Valid AddPatientAccountDto addPatientAccountDto) {
@@ -256,7 +256,7 @@ public class AccountController extends AbstractController {
 
   @POST
   @Path("/add-chemist")
-  @RolesAllowed("createAccount")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   public Response addChemistAccountAsAdmin(
       @NotNull @Valid AddChemistAccountDto addChemistAccountDto) {
@@ -267,7 +267,7 @@ public class AccountController extends AbstractController {
 
   @POST
   @Path("/add-admin")
-  @RolesAllowed("createAccount")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   public Response addAdminAccountAsAdmin(@NotNull @Valid AddAdminAccountDto addAdminAccountDto) {
     Account account = AccountConverter.mapAdminDtoToAccount(addAdminAccountDto);
@@ -278,7 +278,7 @@ public class AccountController extends AbstractController {
   // append access level
   @POST
   @Path("/{id}/patient")
-  @RolesAllowed("grantAccessLevel")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -297,7 +297,7 @@ public class AccountController extends AbstractController {
 
   @POST
   @Path("/{id}/chemist")
-  @RolesAllowed("grantAccessLevel")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -316,7 +316,7 @@ public class AccountController extends AbstractController {
 
   @POST
   @Path("/{id}/admin")
-  @RolesAllowed("grantAccessLevel")
+  @PermitAll
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -335,7 +335,7 @@ public class AccountController extends AbstractController {
   // read access level
   @GET
   @Path("/{id}/patient")
-  @RolesAllowed("getAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   public Response getPatientData(@PathParam("id") Long id) {
     AccessLevel accessLevel = repeatTransaction(
@@ -347,7 +347,7 @@ public class AccountController extends AbstractController {
 
   @GET
   @Path("/{id}/chemist")
-  @RolesAllowed("getAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   public Response getChemistData(@PathParam("id") Long id) {
     AccessLevel accessLevel = repeatTransaction(
@@ -359,7 +359,7 @@ public class AccountController extends AbstractController {
 
   @GET
   @Path("/{id}/admin")
-  @RolesAllowed("getAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   public Response getAdminData(@PathParam("id") Long id) {
     AccessLevel accessLevel = repeatTransaction(
@@ -372,7 +372,7 @@ public class AccountController extends AbstractController {
   // edit access level
   @PUT
   @Path("/{id}/patient")
-  @RolesAllowed("editAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -392,7 +392,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/chemist")
-  @RolesAllowed("editAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -412,7 +412,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/admin")
-  @RolesAllowed("editAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -431,7 +431,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/patient")
-  @RolesAllowed("editSelfAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -450,7 +450,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/chemist")
-  @RolesAllowed("editSelfAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -469,7 +469,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/admin")
-  @RolesAllowed("editSelfAccessLevel")
+  @PermitAll
   @Produces(MediaType.APPLICATION_JSON)
   @Consumes(MediaType.APPLICATION_JSON)
   @ETagFilterBinding
@@ -489,7 +489,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/admin/block")
-  @RolesAllowed("deactivateAccessLevel")
+  @PermitAll
   public Response blockRoleAdmin(@PathParam("id") Long id) {
     repeatTransactionVoid(
         accountManager, () -> accountManager.deactivateAccessLevel(id, Role.ADMIN));
@@ -498,7 +498,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/chemist/block")
-  @RolesAllowed("deactivateAccessLevel")
+  @PermitAll
   public Response blockRoleChemist(@PathParam("id") Long id) {
     repeatTransactionVoid(
         accountManager, () -> accountManager.deactivateAccessLevel(id, Role.CHEMIST));
@@ -507,7 +507,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/patient/block")
-  @RolesAllowed("deactivateAccessLevel")
+  @PermitAll
   public Response blockRolePatient(@PathParam("id") Long id) {
     repeatTransactionVoid(
         accountManager, () -> accountManager.deactivateAccessLevel(id, Role.PATIENT));
@@ -516,7 +516,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/admin/unblock")
-  @RolesAllowed("activateAccessLevel")
+  @PermitAll
   public Response unblockRoleAdmin(@PathParam("id") Long id) {
     repeatTransactionVoid(accountManager, () -> accountManager.activateAccessLevel(id, Role.ADMIN));
     return Response.status(Response.Status.NO_CONTENT).build();
@@ -524,7 +524,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/chemist/unblock")
-  @RolesAllowed("activateAccessLevel")
+  @PermitAll
   public Response unblockRoleChemist(@PathParam("id") Long id) {
     repeatTransactionVoid(
         accountManager, () -> accountManager.activateAccessLevel(id, Role.CHEMIST));
@@ -533,7 +533,7 @@ public class AccountController extends AbstractController {
 
   @PUT
   @Path("/{id}/patient/unblock")
-  @RolesAllowed("activateAccessLevel")
+  @PermitAll
   public Response unblockRolePatient(@PathParam("id") Long id) {
     repeatTransactionVoid(
         accountManager, () -> accountManager.activateAccessLevel(id, Role.PATIENT));

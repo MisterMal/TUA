@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import jakarta.ejb.SessionContext;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.inject.Qualifier;
+import jakarta.transaction.Transactional;
 
 import java.lang.annotation.Retention;
 import java.util.concurrent.ThreadLocalRandom;

@@ -17,9 +17,7 @@ import java.text.ParseException;
 @Dependent
 public class EntityIdentitySignerVerifier {
 
-  @Inject
-  @ConfigProperty(name = "etag.secret")
-  private String ETAG_SECRET;
+  private String ETAG_SECRET = "7d03a8e6t2f59s4a833a1f4m9d0c592f3bfb";
 
   public void checkEtagIntegrity(SignableEntity entity, String etag) {
     if (!verifyEntityIntegrity(entity, etag)) {
