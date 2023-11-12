@@ -92,7 +92,6 @@
       <artifactId>jakarta.security.enterprise-api</artifactId>
       <version>3.0.0</version>
     </dependency>
-
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
@@ -170,11 +169,6 @@
       <version>5.8.1</version>
       <scope>test</scope>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.hibernate.orm</groupId>-->
-<!--      <artifactId>hibernate-core</artifactId>-->
-<!--      <version>6.2.13.Final</version>-->
-<!--    </dependency>-->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>

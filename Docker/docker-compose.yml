@@ -1,0 +1,36 @@
+version: '3'
+networks:
+  bridge:
+    driver: bridge
+services:
+  h2-database:
+    image: oscarfonts/h2
+    environment:
+      - H2_USER=admin
+      - H2_PASSWORD=admin
+    volumes:
+      - ./data:/opt/h2-data
+    networks:
+      - bridge
+
+  myapp:
+    image: wiktor/ssbd01:0.0.1
+    depends_on:
+      - h2-database
+    networks:
+      - bridge
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - myapp
+    networks:
+      - bridge
+
+
+
+
