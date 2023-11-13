@@ -24,8 +24,11 @@ services:
     image: nginx:latest
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/tua2023gr1.crt:/etc/nginx/tua2023gr1.crt
+      - ./nginx/tua2023gr1.key:/etc/nginx/tua2023gr1.key
     depends_on:
       - myapp
     networks:
