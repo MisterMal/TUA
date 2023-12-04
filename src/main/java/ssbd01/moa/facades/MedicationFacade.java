@@ -1,10 +1,13 @@
 package ssbd01.moa.facades;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,7 +20,7 @@ import ssbd01.interceptors.TrackerInterceptor;
 
 import java.util.List;
 import java.util.Optional;
-
+@ApplicationScoped
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
@@ -26,8 +29,8 @@ import java.util.Optional;
         TrackerInterceptor.class
 })
 public class MedicationFacade extends AbstractFacade<Medication> {
-  @PersistenceContext(unitName = "ssbd01moaPU")
-  private EntityManager em;
+  @Inject
+  public EntityManager em;
 
   @Override
   protected EntityManager getEntityManager() {
@@ -38,14 +41,14 @@ public class MedicationFacade extends AbstractFacade<Medication> {
     super(Medication.class);
   }
 
-  @RolesAllowed("getAllMedications")
+  @PermitAll
   public List<Medication> findAll() {
     TypedQuery<Medication> tq = em.createNamedQuery("medication.findAll", Medication.class);
     return tq.getResultList();
   }
 
   @Override
-  @RolesAllowed("createMedication")
+  @PermitAll
   public void create(Medication medication) {
     super.create(medication);
   }

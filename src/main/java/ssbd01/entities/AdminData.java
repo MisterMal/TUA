@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
+import java.io.Serial;
 import java.io.Serializable;
+import java.util.stream.IntStream;
 
 @Entity
 @NoArgsConstructor
@@ -15,9 +17,9 @@ import java.io.Serializable;
 @Setter
 @ToString(callSuper = true)
 @NamedQuery(name = "adminData.findAll", query = "SELECT o FROM AdminData o")
-public class AdminData extends AccessLevel implements Serializable {
+public class AdminData extends AccessLevel implements Serializable, CharSequence {
 
-  private static final long serialVersionUID = 1L;
+
 
   @Column(nullable = false, name = "work_phone_number")
   @NotNull
@@ -29,4 +31,25 @@ public class AdminData extends AccessLevel implements Serializable {
     super(id, Role.ADMIN);
     this.workPhoneNumber = workPhoneNumber;
   }
+
+  @Override
+  public Long getId() {
+    return super.getId();
+  }
+
+  @Override
+  public int length() {
+    return workPhoneNumber.length();
+  }
+
+  @Override
+  public char charAt(int index) {
+    return workPhoneNumber.charAt(index);
+  }
+
+  @Override
+  public CharSequence subSequence(int start, int end) {
+    return workPhoneNumber.subSequence(start, end);
+  }
+
 }

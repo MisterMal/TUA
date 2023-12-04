@@ -19,7 +19,7 @@ import ssbd01.dto.category.CategoryDTO;
 import ssbd01.dto.category.EditCategoryDTO;
 import ssbd01.dto.category.GetCategoryDTO;
 import ssbd01.entities.Category;
-import ssbd01.moa.managers.CategoryManagerLocal;
+import ssbd01.moa.managers.CategoryManager;
 import ssbd01.util.converters.CategoryConverter;
 
 import java.util.List;
@@ -33,15 +33,15 @@ import static ssbd01.entities.LanguageType.pl;
 public class CategoryController extends AbstractController {
 
     @Inject
-    private CategoryManagerLocal categoryManager;
+    public CategoryManager categoryManager;
 
     @Inject
-    private EntityIdentitySignerVerifier entityIdentitySignerVerifier;
+    public EntityIdentitySignerVerifier entityIdentitySignerVerifier;
 
     //moa 22
     @GET
     @Path("/")
-    @RolesAllowed("getAllCategories")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public List<GetCategoryDTO> getAllCategories() {
         List<Category> categories =
@@ -64,7 +64,7 @@ public class CategoryController extends AbstractController {
     //moa 21
     @POST
     @Path("/add-category")
-    @RolesAllowed("createCategory")
+    @PermitAll
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response addCategory(@NotNull @Valid CategoryDTO categoryDto) {
@@ -77,7 +77,7 @@ public class CategoryController extends AbstractController {
     //moa 23
     @PUT
     @Path("/{id}/edit-category")
-    @RolesAllowed("editCategory")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @ETagFilterBinding

@@ -1,15 +1,20 @@
 package ssbd01.moa.managers;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.SessionSynchronization;
 import jakarta.ejb.Stateful;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
+import jakarta.transaction.Transactional;
 import lombok.extern.java.Log;
 import ssbd01.common.AbstractManager;
+import ssbd01.common.CommonManagerLocalInterface;
 import ssbd01.entities.EtagVerification;
 import ssbd01.entities.EtagVersion;
 import ssbd01.entities.Medication;
@@ -24,24 +29,23 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 @Stateful
 @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 @Interceptors({GenericManagerExceptionsInterceptor.class,
         TrackerInterceptor.class})
 @Log
-@DenyAll
-
-public class ShipmentManager extends AbstractManager implements ShipmentManagerLocal, SessionSynchronization {
-
-  @Inject
-  private ShipmentFacade shipmentFacade;
+@PermitAll
+@ApplicationScoped
+public class ShipmentManager extends AbstractManager implements SessionSynchronization, CommonManagerLocalInterface {
 
   @Inject
-  private MedicationFacade medicationFacade;
+  public ShipmentFacade shipmentFacade;
 
+  @Inject
+  public MedicationFacade medicationFacade;
 
-  @Override
-  @RolesAllowed("createShipment")
+  @PermitAll
   public void createShipment(Shipment shipment, EtagVerification etagVerification) {
     shipment.getShipmentMedications().forEach(sm -> {
       EtagVersion etagVersion = etagVerification.getEtagVersionList().get(sm.getMedication().getName());
@@ -58,14 +62,12 @@ public class ShipmentManager extends AbstractManager implements ShipmentManagerL
     shipmentFacade.create(shipment);
   }
 
-  @Override
-  @RolesAllowed("readAllShipments")
+  @PermitAll
   public List<Shipment> getAllShipments() {
     return shipmentFacade.findAllAndRefresh();
   }
 
-  @Override
-  @RolesAllowed("readShipment")
+  @PermitAll
   public Shipment getShipment(Long id) {
     Optional<Shipment> shipmentOpt = shipmentFacade.findAndRefresh(id);
     if (shipmentOpt.isEmpty()) {

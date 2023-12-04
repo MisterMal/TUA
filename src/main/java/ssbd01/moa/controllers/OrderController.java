@@ -1,8 +1,10 @@
 package ssbd01.moa.controllers;
 
 import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.LocalBean;
+import jakarta.inject.Singleton;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -14,38 +16,38 @@ import ssbd01.config.EntityIdentitySignerVerifier;
 import ssbd01.dto.order.CreateOrderDTO;
 import ssbd01.dto.order.OrderDTO;
 import ssbd01.entities.Order;
-import ssbd01.moa.managers.OrderManagerLocal;
-import ssbd01.mok.managers.AccountManagerLocal;
+import ssbd01.moa.managers.OrderManager;
+import ssbd01.mok.managers.AccountManager;
 import ssbd01.util.converters.OrderConverter;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("order")
-@RequestScoped
+@Singleton
 @DenyAll
 @LocalBean
 @Log
 public class OrderController extends AbstractController {
 
     @Inject
-    private OrderManagerLocal orderManager;
+    public OrderManager orderManager;
     @Inject
-    private AccountManagerLocal accountManager;
+    public AccountManager accountManager;
     @Inject
-    private EntityIdentitySignerVerifier entityIdentitySignerVerifier;
+    public EntityIdentitySignerVerifier entityIdentitySignerVerifier;
 
     //moa 18
     @GET
     @Path("/")
-    @DenyAll
+    @PermitAll
     public List<OrderDTO> getAllOrders() {
         throw new UnsupportedOperationException();
     }
 
     //moa 17
     @GET
-    @RolesAllowed("getAllOrdersForSelf")
+    @PermitAll
     @Path("/self")
     public Response getAllOrdersForSelf() {
         List<OrderDTO> orderDTOs = repeatTransaction(orderManager, () -> orderManager.getAllOrdersForSelf(accountManager.getCurrentUserWithAccessLevels()).stream()
@@ -57,7 +59,7 @@ public class OrderController extends AbstractController {
     // moa 14
     @PUT
     @Path("/{id}/cancel")
-    @RolesAllowed("cancelOrder")
+    @PermitAll
     public Response cancelOrder(@PathParam("id") Long id) {
         repeatTransactionVoid(orderManager, () -> orderManager.cancelOrder(id));
         return Response.ok().build();
@@ -66,7 +68,7 @@ public class OrderController extends AbstractController {
     //moa 13
     @PUT
     @Path("/{id}/approve")
-    @RolesAllowed("approveOrder")
+    @PermitAll
     public Response approveOrder(@PathParam("id") Long id) {
         repeatTransactionVoid(orderManager, () -> orderManager.approveOrder(id));
         return Response.ok().build();
@@ -75,7 +77,7 @@ public class OrderController extends AbstractController {
     //moa 12
     @GET
     @Path("/to-approve")
-    @RolesAllowed("getOrdersToApprove")
+    @PermitAll
     public List<OrderDTO> getOrdersToApprove() {
         List<Order> orders = repeatTransaction(orderManager,
                 () -> orderManager.getOrdersToApprove());
@@ -87,7 +89,7 @@ public class OrderController extends AbstractController {
     // moa 7
     @POST
     @Path("/submit")
-    @RolesAllowed("createOrder")
+    @PermitAll
     public Response submitOrder(@Valid CreateOrderDTO createOrderDTO) {
       Order inputOrder = OrderConverter.mapCreateOrderDTOToOrder(createOrderDTO);
       repeatTransactionVoidWithOptimisticLock(orderManager, () -> orderManager.createOrder(inputOrder));
@@ -97,7 +99,7 @@ public class OrderController extends AbstractController {
 
     // mok 9
     @GET
-    @RolesAllowed("getWaitingOrders")
+    @PermitAll
     @Path("/waiting")
     public List<OrderDTO> getWaitingOrders() {
         List<Order> orders = repeatTransaction(orderManager, () -> orderManager.getWaitingOrders());
@@ -108,7 +110,7 @@ public class OrderController extends AbstractController {
 
     //mok 8
    @PUT
-   @RolesAllowed("withdraw")
+   @PermitAll
    @Path("/{id}/withdraw")
    public Response withdrawOrderById(@PathParam("id") Long id){
        repeatTransactionVoid(orderManager, () -> orderManager.withdrawOrder(id));
@@ -118,7 +120,7 @@ public class OrderController extends AbstractController {
 
     // mok 10
     @DELETE
-    @RolesAllowed("deleteWaitingOrdersById")
+    @PermitAll
     @Path("/{id}/waiting")
     public Response deleteWaitingOrderById(@PathParam("id") Long id) {
         repeatTransactionVoid(orderManager, () -> orderManager.deleteWaitingOrderById(id));
@@ -126,7 +128,7 @@ public class OrderController extends AbstractController {
     }
 
     @PUT
-    @RolesAllowed("approvedByPatient")
+    @PermitAll
     @Path("/{id}/patient-approve")
     public Response approvedByPatient(@PathParam("id") Long id){
         repeatTransactionVoid(orderManager, () -> orderManager.approvedByPatient(id));
@@ -136,7 +138,7 @@ public class OrderController extends AbstractController {
     //moa 16
     @PUT
     @Path("/update-queue")
-    @RolesAllowed("updateQueue")
+    @PermitAll
     public Response updateQueue() {
         repeatTransactionVoidWithOptimisticLock(orderManager, () -> orderManager.updateQueue());
         return Response.noContent().build();
@@ -145,7 +147,7 @@ public class OrderController extends AbstractController {
     //moa 15
     @GET
     @Path("/statistics")
-    @DenyAll
+    @PermitAll
     public void showStatistics() {
         throw new UnsupportedOperationException();
     }

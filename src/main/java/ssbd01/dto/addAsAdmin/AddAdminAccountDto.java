@@ -2,12 +2,10 @@ package ssbd01.dto.addAsAdmin;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ssbd01.dto.register.BasicAccountDto;
 
+@EqualsAndHashCode(callSuper=false)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

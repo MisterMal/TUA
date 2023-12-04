@@ -15,8 +15,8 @@ import ssbd01.config.EntityIdentitySignerVerifier;
 import ssbd01.dto.medication.AddMedicationDTO;
 import ssbd01.dto.medication.MedicationDTO;
 import ssbd01.entities.Medication;
-import ssbd01.moa.managers.CategoryManagerLocal;
-import ssbd01.moa.managers.MedicationManagerLocal;
+import ssbd01.moa.managers.CategoryManager;
+import ssbd01.moa.managers.MedicationManager;
 import ssbd01.util.converters.MedicationConverter;
 
 
@@ -29,19 +29,19 @@ import java.util.List;
 public class MedicationController extends AbstractController {
 
     @Inject
-    private MedicationManagerLocal medicationManager;
+    public MedicationManager medicationManager;
 
     @Inject
-    private CategoryManagerLocal categoryManager;
+    public CategoryManager categoryManager;
 
     @Inject
-    private EntityIdentitySignerVerifier entityIdentitySignerVerifier;
+    public EntityIdentitySignerVerifier entityIdentitySignerVerifier;
 
 
     //moa 1
     @GET
     @Path("/")
-    @RolesAllowed("getAllMedications")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public List<MedicationDTO> getAllMedications() {
         List<Medication> medications =
@@ -70,7 +70,7 @@ public class MedicationController extends AbstractController {
     //moa 20
     @PUT
     @Path("/{id}/edit-medication")
-    @DenyAll
+    @PermitAll
     public AddMedicationDTO editMedication(AddMedicationDTO addMedicationDTO) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -78,7 +78,7 @@ public class MedicationController extends AbstractController {
     //moa 2???
     @GET
     @Path("/{id}")
-    @RolesAllowed("getMedicationDetails")
+    @PermitAll
     @Produces(MediaType.APPLICATION_JSON)
     public Response getMedicationDetails(@PathParam("id") Long id) {
         Medication medication = repeatTransaction(medicationManager, () -> medicationManager.getMedicationDetails(id));

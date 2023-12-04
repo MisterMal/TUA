@@ -1,7 +1,11 @@
 package ssbd01.moa.facades;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -12,7 +16,7 @@ import ssbd01.interceptors.TrackerInterceptor;
 
 import java.util.List;
 import java.util.Optional;
-
+@ApplicationScoped
 @Stateless
 @Interceptors({
         GenericFacadeExceptionsInterceptor.class,
@@ -20,8 +24,8 @@ import java.util.Optional;
 })
 public class ShipmentFacade extends AbstractFacade<Shipment> {
 
-  @PersistenceContext(unitName = "ssbd01moaPU")
-  private EntityManager em;
+  @Inject
+  public EntityManager em;
 
   @Override
   protected EntityManager getEntityManager() {
@@ -32,12 +36,12 @@ public class ShipmentFacade extends AbstractFacade<Shipment> {
     super(Shipment.class);
   }
 
-  @RolesAllowed("createShipment")
+  @PermitAll
   public void create(Shipment shipment) {
     super.create(shipment);
   }
 
-  @RolesAllowed("readAllShipments")
+  @PermitAll
   public List<Shipment> findAllAndRefresh() {
     return getEntityManager()
             .createQuery("select s from Shipment s left join fetch s.shipmentMedications")
@@ -48,7 +52,7 @@ public class ShipmentFacade extends AbstractFacade<Shipment> {
     return getEntityManager().createNamedQuery("Shipment.findAllNotProcessed", Shipment.class).getResultList();
   }
 
-  @RolesAllowed("readShipment")
+  @PermitAll
   public Optional<Shipment> findAndRefresh(Long id) {
     return super.findAndRefresh(id);
   }

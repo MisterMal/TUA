@@ -5,10 +5,13 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.transaction.Transactional;
 import ssbd01.common.AbstractFacade;
 import ssbd01.entities.Token;
 import ssbd01.entities.TokenType;
@@ -19,6 +22,9 @@ import ssbd01.interceptors.TrackerInterceptor;
 import java.util.Date;
 import java.util.List;
 
+import static jakarta.transaction.Transactional.TxType.MANDATORY;
+
+@ApplicationScoped
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
@@ -26,10 +32,10 @@ import java.util.List;
         TokenFacadeInterceptor.class,
         TrackerInterceptor.class
 })
-@DenyAll
+@PermitAll
 public class TokenFacade extends AbstractFacade<Token> {
-  @PersistenceContext(unitName = "ssbd01mokPU")
-  private EntityManager em;
+  @Inject
+  public EntityManager em;
 
   public TokenFacade() {
     super(Token.class);
@@ -63,6 +69,7 @@ public class TokenFacade extends AbstractFacade<Token> {
     return tq.getSingleResult();
   }
 
+  @Transactional(MANDATORY)
   @Override
   @PermitAll
   public void create(Token token) {

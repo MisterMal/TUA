@@ -3,6 +3,7 @@ package ssbd01.common;
 import jakarta.ejb.EJBTransactionRolledbackException;
 import jakarta.inject.Inject;
 import jakarta.persistence.OptimisticLockException;
+import jakarta.transaction.Transactional;
 import lombok.extern.java.Log;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.hibernate.TransactionException;
@@ -12,9 +13,7 @@ import java.util.function.Supplier;
 @Log
 public abstract class AbstractController {
 
-  @Inject
-  @ConfigProperty(name = "transaction.repeat.count")
-  private int TRANSACTION_REPEAT_COUNT;
+  public int TRANSACTION_REPEAT_COUNT = 3;
 
   protected <T> T repeatTransaction(CommonManagerLocalInterface service, Supplier<T> method) {
     int retryTXCounter = TRANSACTION_REPEAT_COUNT;

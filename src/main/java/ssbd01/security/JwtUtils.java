@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
@@ -14,22 +15,21 @@ import javax.crypto.SecretKey;
 import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Log
+@ApplicationScoped
 public class JwtUtils {
 
-  @Inject
-  @ConfigProperty(name = "jwt.timeout")
-  private int TIMEOUT;
 
-  @Inject
-  @ConfigProperty(name = "jwt.key")
-  private String SECRET;
+  public int TIMEOUT = 15;
 
-  public String create(CredentialValidationResult result) {
-    String principal = result.getCallerPrincipal().getName();
-    Set<String> authorities = result.getCallerGroups();
+  public String SECRET = "6P2A9EsnwbdPyd8Ine7C5EcskiTIHOYtB30NnZyEKW2Y3kWearZv3SEs2N91z55q";
+
+  public String create(String login, Set set) {
+    String principal = login;
+    Set<String> authorities = set;
 
     return Jwts.builder()
         .setSubject(principal)

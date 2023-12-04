@@ -13,7 +13,6 @@ import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageCont
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.HttpHeaders;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;

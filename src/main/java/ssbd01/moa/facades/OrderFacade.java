@@ -1,10 +1,13 @@
 package ssbd01.moa.facades;
 
+import io.quarkus.hibernate.orm.PersistenceUnit;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.Stateless;
 import jakarta.ejb.TransactionAttribute;
 import jakarta.ejb.TransactionAttributeType;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.interceptor.Interceptors;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -23,7 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static ssbd01.entities.OrderState.IN_QUEUE;
-
+@ApplicationScoped
 @Stateless
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 @Interceptors({
@@ -32,8 +35,8 @@ import static ssbd01.entities.OrderState.IN_QUEUE;
         TrackerInterceptor.class
 })
 public class OrderFacade extends AbstractFacade<Order> {
-    @PersistenceContext(unitName = "ssbd01moaPU")
-    private EntityManager em;
+    @Inject
+    public EntityManager em;
 
     @Override
     protected EntityManager getEntityManager() {
@@ -51,7 +54,7 @@ public class OrderFacade extends AbstractFacade<Order> {
     }
 
     @Override
-    @RolesAllowed("createOrder")
+    @PermitAll
     public void create(Order order) {
         super.create(order);
     }
@@ -62,22 +65,22 @@ public class OrderFacade extends AbstractFacade<Order> {
         return query.getResultList();
     }
 
-    @RolesAllowed("getWaitingOrders")
+    @PermitAll
     public List<Order> findWaitingOrders() {
         return getEntityManager()
                 .createQuery("select distinct o from Order o "
                         + "left join fetch o.orderMedications "
-                        + "where o.orderState = pl.lodz.p.it.ssbd2023.ssbd01.entities.OrderState.IN_QUEUE")
+                        + "where o.orderState = ssbd01.entities.OrderState.IN_QUEUE")
                 .getResultList();
     }
 
-    @RolesAllowed("updateQueue")
+    @PermitAll
     public List<Order> findAllOrdersInQueueSortByOrderDate() {
         TypedQuery<Order> query = em.createNamedQuery("Order.findAllOrdersStateInQueueSortByOrderDate", Order.class);
         return query.getResultList();
     }
 
-    @RolesAllowed("createOrder")
+    @PermitAll
     public List<Order> findOrdersInQueueContainingMedicationsSortByOrderDate(List<Medication> medications) {
         return getEntityManager()
                 .createQuery("SELECT o FROM Order o " +
@@ -92,18 +95,18 @@ public class OrderFacade extends AbstractFacade<Order> {
                 .getResultList();
     }
 
-    @RolesAllowed("getOrdersToApprove")
+    @PermitAll
     public List<Order> findNotYetApproved() {
         return getEntityManager()
                 .createQuery("select o from Order o "
                         + "left join fetch o.orderMedications "
                         + "where o.prescription is not null "
-                        + "and o.orderState = pl.lodz.p.it.ssbd2023.ssbd01.entities.OrderState.WAITING_FOR_CHEMIST_APPROVAL")
+                        + "and o.orderState = ssbd01.entities.OrderState.WAITING_FOR_CHEMIST_APPROVAL")
                 .getResultList();
     }
 
 
-    @RolesAllowed("deleteWaitingOrdersById")
+    @PermitAll
     public void deleteWaitingOrdersById(Long id) {
         String orderQuery = "UPDATE Order o SET o.orderState = :newState "
                 + "WHERE o.id = :orderId AND o.orderState = :currentState";
@@ -118,7 +121,7 @@ public class OrderFacade extends AbstractFacade<Order> {
         }
 
 
-  @RolesAllowed("withdraw")
+    @PermitAll
   public void withdrawOrder(Long id, Long userId){
       String updateStateQuery = "UPDATE Order o " +
               "SET o.orderState = :newState " +
@@ -136,7 +139,7 @@ public class OrderFacade extends AbstractFacade<Order> {
 
   }
 
-    @RolesAllowed("approvedByPatient")
+    @PermitAll
     public void approvedByPatient(Long id, Long userId){
         String updateStateQuery = "UPDATE Order o " +
                 "SET o.orderState = :newState " +
@@ -153,7 +156,7 @@ public class OrderFacade extends AbstractFacade<Order> {
                 .executeUpdate();
     }
 
-    @RolesAllowed("cancelOrder")
+    @PermitAll
     public void cancelOrder(Long id, Long chemistId) {
         String updateStateQuery = "UPDATE Order o " +
                 "SET o.orderState = :newState, o.chemistData.id = :chemistId, o.modificationDate = :mod " +
